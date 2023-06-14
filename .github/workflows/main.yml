@@ -99,3 +99,17 @@ jobs:
         bundler-cache: true
     - name: Run Ruby tests with valgrind
       run: bundle exec rake test:valgrind
+
+  gcc-analyzer:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: head
+        bundler-cache: true
+    - name: Run build with gcc-analyzer enabled
+      run: |
+        sed -e  's/CFLAGS :=$/CFLAGS := -fanalyzer/g' -i Makefile
+        bundle exec rake compile
