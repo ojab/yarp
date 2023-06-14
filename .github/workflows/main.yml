@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - coverity
   pull_request:
 
 jobs:
@@ -129,3 +130,19 @@ jobs:
       run: |
         scan-build bundle exec rake compile 2>&1 | tee /tmp/scan_build_output.log
         grep -q 'scan-build: No bugs found.' /tmp/scan_build_output.log
+
+  coverity:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: head
+        bundler-cache: true
+    - uses: vapier/coverity-scan-action@v1
+      with:
+        project: yarp
+        email: ${{ secrets.COVERITY_SCAN_EMAIL }}
+        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
+        command: 'bundle exec rake compile'
